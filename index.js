@@ -22,6 +22,7 @@ async function run() {
     const database = client.db("tourPlanner");
     const tourPackages = database.collection("tourPackages");
     const orderCollection = database.collection("orders");
+    const contactCollection = database.collection("contacts");
 
     // GET API - ALL
     app.get('/tours', async (req, res) => {
@@ -73,6 +74,30 @@ async function run() {
       res.send(orders);
     });
 
+    // GET API  - ORDERS SINGLE
+    app.get('/orders/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const order = await orderCollection.findOne(query);
+      res.json(order);
+    });
+
+    // UPDATE API  - ORDERS SINGLE
+    app.put('/orders/:id', async (req, res) => {
+
+      const id = req.params.id;
+      const filter = { _id: ObjectId(id) };
+
+      const updateDoc = {
+        $set: {
+          status: 'success'
+        },
+      };
+
+      const result = await orderCollection.updateOne(filter, updateDoc);
+      res.json(result);
+    });
+
     // DELETE API - ORDER
     app.delete('/orders/:id', async (req, res) => {
       const id = req.params.id;
@@ -82,6 +107,16 @@ async function run() {
 
     });
 
+
+
+    // POST API - Contact
+    app.post('/contact', async (req, res) => {
+
+      const contactInfo = req.body;
+      const result = await contactCollection.insertOne(contactInfo);
+      console.log(`A document was inserted with the _id: ${result.insertedId}`);
+      res.json(result);
+    });
 
 
   }
